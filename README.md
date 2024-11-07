@@ -1,5 +1,5 @@
-# ProyectoIntegracionContinuaPoliB01
-Proyecto materia Integracion Continua B01 Poli
+# Proyecto Prueba Jenkins 
+
 
 ## Depliegue en local
 

@@ -1,14 +1,13 @@
 name: CI Pipeline
 
 on:
-    # push:
-    #     branches:
-    #         - feature/jorgev
+    push:
+        branches:
+            - dev
     pull_request:
         branches:
             - dev
-            - qa
-            - main
+            - master
 
 jobs:
     build:
