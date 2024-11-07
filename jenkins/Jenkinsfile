@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    environment {
+        GRADLE_OPTS = '-Dorg.gradle.daemon=false'
+        DB_USERNAME = 'user_products'
+        DB_PORT = '5433'
+        DB_NAME = 'products'
+        DB_HOST = 'localhost'
+        DB_PASSWORD = 'Cl4v3_S3cret4'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/feature/jorgev']], userRemoteConfigs: [[url: 'https://github.com/javo8922/ProyectoIntegracionContinuaPoliB01']]])
+            }
+        }
+
+        stage('Grant execute permission for gradlew') {
+            steps {
+                dir('ms_products') {
+                    sh 'chmod +x gradlew'
+                }
+            }
+        }
+
+        stage('Runing Test And Generate Coverage Report') {
+            steps {
+                dir('ms_products') {
+                    sh '''
+                        export DB_USERNAME=${DB_USERNAME}
+                        export DB_PORT=${DB_PORT}
+                        export DB_NAME=${DB_NAME}
+                        export DB_HOST=${DB_HOST}
+                        export DB_PASSWORD=${DB_PASSWORD}
+                        ./gradlew jacocoTestReport
+                    '''
+                }
+            }
+        }
+
+        stage('Publish Coverage Report') {
+            steps {
+                jacoco execPattern: 'ms_products/build/jacoco/test.exec', classPattern: 'ms_products/build/classes/java/main', sourcePattern: 'ms_products/src/main/java', exclusionPattern: '**/Test*'
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'ms_products/build/reports/**', allowEmptyArchive: true
+            junit 'ms_products/build/test-results/test/*.xml'
+            cleanWs()
+        }
+        failure {
+            cleanWs()
+        }
+    }
+}

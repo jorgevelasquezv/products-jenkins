@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db-products:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    container_name: db-products
+    ports:
+      - "5433:5432"
+    volumes:
+      - products_data:/var/lib/postgresql/data
+    networks:
+      - productos-network
+
+  ms-products:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile-ms-products
+    container_name: ms-products
+    environment:
+      DB_HOST: db-products
+      DB_PORT: 5432
+      DB_NAME: products
+      DB_USERNAME: user_products
+      DB_PASSWORD: Cl4v3_S3cret4
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db-products
+    networks:
+      - productos-network
+
+volumes:
+  products_data:
+
+networks:
+  productos-network:

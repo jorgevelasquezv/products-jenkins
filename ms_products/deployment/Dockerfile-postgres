@@ -1,0 +1,13 @@
+# Usar una imagen oficial de PostgreSQL como imagen base
+FROM postgres:14-alpine
+
+# Establecer variables de entorno para la base de datos
+ENV POSTGRES_DB=products
+ENV POSTGRES_USER=user_products
+ENV POSTGRES_PASSWORD=Cl4v3_S3cret4
+
+# Copiar el archivo de inicialización SQL al directorio de inicialización de PostgreSQL
+COPY init.sql /docker-entrypoint-initdb.d/
+
+# Exponer el puerto en el que se ejecuta PostgreSQL
+EXPOSE 5432
