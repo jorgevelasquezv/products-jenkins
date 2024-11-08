@@ -34,22 +34,29 @@ jobs:
                       ${{ runner.os }}-gradle-
 
             - name: Grant execute permission for gradlew
-              run: chmod +x gradlew
+              run: chmod +x ms_products/gradlew
 
             - name: Run unit tests
-              run: ./gradlew jacocoTestReport
+              env:
+                GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+                DB_USERNAME: ${{ secrets.DB_USERNAME }}
+                DB_PORT: ${{ secrets.DB_PORT }}
+                DB_NAME: ${{ secrets.DB_NAME }}
+                DB_HOST: ${{ secrets.DB_HOST }}
+                DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+              run: cd ms_products && ./gradlew jacocoTestReport
 
             - name: Upload coverage report
               uses: actions/upload-artifact@v4
               with:
                   name: coverage-report
-                  path: build/reports/jacoco/test/html
+                  path: ms_products/build/reports/jacoco/test/html
 
             - name: Publish test results
               uses: actions/upload-artifact@v4
               with:
                   name: test-results
-                  path: build/test-results/test
+                  path: ms_products/build/test-results/test
 
             # - name: Login to Docker Hub
             #   if: success()
