@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], userRemoteConfigs: [[url: 'https://github.com/jorgevelasquezv/products-jenkins']]])
+                checkout scm
             }
         }
 
@@ -40,21 +40,34 @@ pipeline {
             }
         }
 
-        stage('Publish Coverage Report') {
+        stage('Check Coverage') {
             steps {
                 jacoco execPattern: 'ms_products/build/jacoco/test.exec', classPattern: 'ms_products/build/classes/java/main', sourcePattern: 'ms_products/src/main/java', exclusionPattern: '**/Test*'
+            }
+        }
+
+        stage('Publish Coverage Report') {
+            steps {
+                archiveArtifacts artifacts: 'ms_products/build/reports/jacoco/test/html/**', allowEmptyArchive: true
             }
         }
     }
 
     post {
-        success {
-            archiveArtifacts artifacts: 'ms_products/build/reports/**', allowEmptyArchive: true
-            junit 'ms_products/build/test-results/test/*.xml'
-            cleanWs()
-        }
-        failure {
-            cleanWs()
+        always {
+            script {
+                def jacocoResults = jacoco(
+                    execPattern: 'ms_products/build/jacoco/test.exec',
+                    classPattern: 'ms_products/build/classes/java/main',
+                    sourcePattern: 'ms_products/src/main/java',
+                    exclusionPattern: '**/Test*'
+                )
+                def lineCoverage = jacocoResults.lineCoverage
+                echo "Line Coverage: ${lineCoverage}%"
+                if (lineCoverage < 80) {
+                    error "Coverage is below 80%: ${lineCoverage}%"
+                }
+            }
         }
     }
 }
