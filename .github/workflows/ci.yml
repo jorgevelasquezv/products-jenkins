@@ -37,6 +37,13 @@ jobs:
               run: chmod +x ms_products/gradlew
 
             - name: Run unit tests
+              env:
+                GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+                DB_USERNAME: ${{ secrets.DB_USERNAME }}
+                DB_PORT: ${{ secrets.DB_PORT }}
+                DB_NAME: ${{ secrets.DB_NAME }}
+                DB_HOST: ${{ secrets.DB_HOST }}
+                DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
               run: cd ms_products && ./gradlew jacocoTestReport
 
             - name: Upload coverage report
