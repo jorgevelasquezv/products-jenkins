@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/dev']], userRemoteConfigs: [[url: 'https://github.com/jorgevelasquezv/products-jenkins']]])
+                checkout scm
             }
         }
 
@@ -36,6 +36,26 @@ pipeline {
                         export DB_PASSWORD=${DB_PASSWORD}
                         ./gradlew jacocoTestReport
                     '''
+                }
+            }
+        }
+
+        stage('Check Coverage') {
+            steps {
+                script {
+                    def coverageFile = readFile('ms_products/build/reports/jacoco/test/jacocoTestReport.xml')
+                    def coverage = new XmlSlurper().parseText(coverageFile)
+                    def lineCoverage = coverage.counter.find { it.@type == 'LINE' }
+                    def covered = lineCoverage.@covered.toInteger()
+                    def missed = lineCoverage.@missed.toInteger()
+                    def total = covered + missed
+                    def coveragePercentage = (covered / total) * 100
+
+                    echo "Line Coverage: ${coveragePercentage}%"
+
+                    if (coveragePercentage < 80) {
+                        error "Coverage is below 80%: ${coveragePercentage}%"
+                    }
                 }
             }
         }
