@@ -34,22 +34,22 @@ jobs:
                       ${{ runner.os }}-gradle-
 
             - name: Grant execute permission for gradlew
-              run: chmod +x gradlew
+              run: chmod +x ms_products/gradlew
 
             - name: Run unit tests
-              run: ./gradlew jacocoTestReport
+              run: ms_products/./gradlew jacocoTestReport
 
             - name: Upload coverage report
               uses: actions/upload-artifact@v4
               with:
                   name: coverage-report
-                  path: build/reports/jacoco/test/html
+                  path: ms_products/build/reports/jacoco/test/html
 
             - name: Publish test results
               uses: actions/upload-artifact@v4
               with:
                   name: test-results
-                  path: build/test-results/test
+                  path: ms_products/build/test-results/test
 
             # - name: Login to Docker Hub
             #   if: success()
