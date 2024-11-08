@@ -43,13 +43,9 @@ pipeline {
         stage('Check Coverage') {
             steps {
                 script {
-                    def coverageFile = readFile('ms_products/build/reports/jacoco/test/jacocoTestReport.xml')
-                    def coverage = new XmlSlurper().parseText(coverageFile)
-                    def lineCoverage = coverage.counter.find { it.@type == 'LINE' }
-                    def covered = lineCoverage.@covered.toInteger()
-                    def missed = lineCoverage.@missed.toInteger()
-                    def total = covered + missed
-                    def coveragePercentage = (covered / total) * 100
+                    def coverageFile = 'ms_products/build/reports/jacoco/test/html/index.html'
+                    def coverageLine = sh(script: "grep -A 1 'Line coverage' ${coverageFile} | tail -n 1", returnStdout: true).trim()
+                    def coveragePercentage = coverageLine.replaceAll(/[^0-9.]/, '').toFloat()
 
                     echo "Line Coverage: ${coveragePercentage}%"
 
