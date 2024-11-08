@@ -36,6 +36,9 @@ jobs:
             - name: Grant execute permission for gradlew
               run: chmod +x ms_products/gradlew
 
+            - name: Build with Gradle
+              run: ms_products/./gradlew build
+            
             - name: Run unit tests
               run: ms_products/./gradlew jacocoTestReport
 
