@@ -72,6 +72,20 @@ pipeline {
             }
         }
 
+        stage('Wait for Services ans run acceptance tests') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitUntil {
+                        def status = sh(script: 'docker inspect --format=\'{{.State.Status}}\' ms-products', returnStatus: true)
+                        return status == 0
+                    }
+                }
+                dir('AcceptanceTest/ms_products') {
+                    sh './gradlew clean test -i'
+                }
+            }
+        }
+
         stage('Tear Down') {
             steps {
                 dir('ms_products/deployment') {
