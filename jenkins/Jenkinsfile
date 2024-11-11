@@ -52,6 +52,18 @@ pipeline {
             }
         }
 
+        stage('Clean Up Existing Containers') {
+            steps {
+                dir('ms_products/deployment') {
+                    sh '''
+                        docker compose || true
+                        docker rm -f db-products || true
+                        docker rm -f ms-products || true
+                    '''
+                }
+            }
+        }
+
         stage('Deploy with Docker Compose') {
             steps {
                 dir('ms_products/deployment') {

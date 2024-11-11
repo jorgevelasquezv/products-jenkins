@@ -25,7 +25,7 @@ services:
       DB_USERNAME: user_products
       DB_PASSWORD: Cl4v3_S3cret4
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       - db-products
     networks:
