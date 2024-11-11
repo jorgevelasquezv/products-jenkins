@@ -63,7 +63,7 @@ pipeline {
         stage('Tear Down') {
             dir('ms_products/deployment') {
                 steps {
-                    sh 'docker-compose down'
+                    sh 'docker-compose down '
                 }
             }
         }
