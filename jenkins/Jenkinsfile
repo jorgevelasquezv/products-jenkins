@@ -51,6 +51,18 @@ pipeline {
                 archiveArtifacts artifacts: 'ms_products/build/reports/jacoco/test/html/**', allowEmptyArchive: true
             }
         }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                sh 'docker-compose -f ms_products/deployment/docker-compose.yml up -d'
+            }
+        }
+
+        stage('Tear Down') {
+            steps {
+                sh 'docker-compose -f ms_products/deployment/docker-compose.yml down'
+            }
+        }
     }
 
     post {
