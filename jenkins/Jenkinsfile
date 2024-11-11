@@ -48,7 +48,7 @@ pipeline {
 
         stage('Publish Coverage Report') {
             steps {
-                archiveArtifacts artifacts: 'ms_products/build/reports/jacoco/test/html/**', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'ms_products/build/jacocoHtml/**', allowEmptyArchive: true
             }
         }
 
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 dir('ms_products/deployment') {
                     sh '''
-                        docker compose || true
+                        docker compose down || true
                         docker rm -f db-products || true
                         docker rm -f ms-products || true
                     '''
