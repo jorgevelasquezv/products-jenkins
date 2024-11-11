@@ -75,7 +75,7 @@ pipeline {
         stage('Tear Down') {
             steps {
                 dir('ms_products/deployment') {
-                    sh 'docker compose down '
+                    sh 'docker compose down -v'
                 }
             }
         }
