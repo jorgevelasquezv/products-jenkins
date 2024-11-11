@@ -53,16 +53,16 @@ pipeline {
         }
 
         stage('Deploy with Docker Compose') {
-            dir('ms_products/deployment') {
-                steps {
+            steps {
+                dir('ms_products/deployment') {
                     sh 'docker-compose up -d'
                 }
             }
         }
 
         stage('Tear Down') {
-            dir('ms_products/deployment') {
-                steps {
+            steps {
+                dir('ms_products/deployment') {
                     sh 'docker-compose down '
                 }
             }
