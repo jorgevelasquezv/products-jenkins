@@ -83,6 +83,7 @@ pipeline {
         stage('Run Acceptance Tests') {
             steps {
                 dir('AcceptanceTest/ms_products') {
+                    sh 'chmod +x gradlew'
                     sh './gradlew clean test -i'
                 }
             }
