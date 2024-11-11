@@ -55,7 +55,7 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 dir('ms_products/deployment') {
-                    sh 'docker-compose up -d'
+                    sh 'docker compose up -d'
                 }
             }
         }
@@ -63,7 +63,7 @@ pipeline {
         stage('Tear Down') {
             steps {
                 dir('ms_products/deployment') {
-                    sh 'docker-compose down '
+                    sh 'docker compose down '
                 }
             }
         }
