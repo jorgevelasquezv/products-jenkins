@@ -40,25 +40,27 @@ pipeline {
             }
         }
 
-        stage('Check Coverage') {
-            steps {
-                script {
-                    def coverageFile = 'ms_products/build/jacocoHtml/index.html'
-                    def coverageLine = sh(script: "grep -A 1 'Line coverage' ${coverageFile} | tail -n 1", returnStdout: true).trim()
-                    def coveragePercentage = coverageLine.replaceAll(/[^0-9.]/, '').toFloat()
-
-                    echo "Line Coverage: ${coveragePercentage}%"
-
-                    if (coveragePercentage < 80) {
-                        error "Coverage is below 80%: ${coveragePercentage}%"
-                    }
-                }
-            }
-        }
-
         stage('Publish Coverage Report') {
             steps {
                 jacoco execPattern: 'ms_products/build/jacoco/test.exec', classPattern: 'ms_products/build/classes/java/main', sourcePattern: 'ms_products/src/main/java', exclusionPattern: '**/Test*'
+            }
+        }
+
+        stage('Check Coverage') {
+            steps {
+                script {
+                    def jacocoResults = jacoco(
+                        execPattern: 'ms_products/build/jacoco/test.exec',
+                        classPattern: 'ms_products/build/classes/java/main',
+                        sourcePattern: 'ms_products/src/main/java',
+                        exclusionPattern: '**/Test*'
+                    )
+                    def lineCoverage = jacocoResults.lineCoverage
+                    echo "Line Coverage: ${lineCoverage}%"
+                    if (lineCoverage < 80) {
+                        error "Coverage is below 80%: ${lineCoverage}%"
+                    }
+                }
             }
         }
 
@@ -109,12 +111,7 @@ pipeline {
     }
 
     post {
-        success {
-            archiveArtifacts artifacts: 'ms_products/build/reports/**', allowEmptyArchive: true
-            junit 'ms_products/build/test-results/test/*.xml'
-            cleanWs()
-        }
-        failure {
+        always {
             cleanWs()
         }
     }
