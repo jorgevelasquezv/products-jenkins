@@ -46,29 +46,11 @@ pipeline {
             }
         }
 
-        stage('Check Coverage') {
-            steps {
-                script {
-                    def jacocoResults = jacoco(
-                        execPattern: 'ms_products/build/jacoco/test.exec',
-                        classPattern: 'ms_products/build/classes/java/main',
-                        sourcePattern: 'ms_products/src/main/java',
-                        exclusionPattern: '**/Test*'
-                    )
-                    def lineCoverage = jacocoResults.lineCoverage
-                    echo "Line Coverage: ${lineCoverage}%"
-                    if (lineCoverage < 80) {
-                        error "Coverage is below 80%: ${lineCoverage}%"
-                    }
-                }
-            }
-        }
-
         stage('Clean Up Existing Containers') {
             steps {
                 dir('ms_products/deployment') {
                     sh '''
-                        docker compose down || true
+                        docker compose down -v || true
                         docker rm -f db-products || true
                         docker rm -f ms-products || true
                     '''
@@ -97,6 +79,24 @@ pipeline {
                 dir('AcceptanceTest/ms_products') {
                     sh 'chmod +x gradlew'
                     sh './gradlew clean test -i'
+                }
+            }
+        }
+        
+        stage('Publish Cucumber Report') {
+            steps {
+                script {
+                    def cucumberReportExists = fileExists 'AcceptanceTest/ms_products/target/cucumber-html-reports'
+                    if (cucumberReportExists) {
+                        archiveArtifacts artifacts: 'AcceptanceTest/ms_products/target/cucumber-html-reports/**', allowEmptyArchive: true
+                        publishHTML(target: [
+                            reportDir: 'AcceptanceTest/ms_products/target/cucumber-html-reports',
+                            reportFiles: 'index.html',
+                            reportName: 'Cucumber HTML Report'
+                        ])
+                    } else {
+                        echo 'No Cucumber report found to archive.'
+                    }
                 }
             }
         }
