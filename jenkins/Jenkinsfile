@@ -48,7 +48,7 @@ pipeline {
 
         stage('Publish Coverage Report') {
             steps {
-                archiveArtifacts artifacts: 'ms_products/build/reports/jacoco/test/html/**', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'ms_products/build/jacocoHtml/**', allowEmptyArchive: true
             }
         }
 
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 dir('ms_products/deployment') {
                     sh '''
-                        docker compose || true
+                        docker compose down || true
                         docker rm -f db-products || true
                         docker rm -f ms-products || true
                     '''
@@ -72,10 +72,24 @@ pipeline {
             }
         }
 
+        stage('Wait for Services ans run acceptance tests') {
+            steps {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitUntil {
+                        def status = sh(script: 'docker inspect --format=\'{{.State.Status}}\' ms-products', returnStatus: true)
+                        return status == 0
+                    }
+                }
+                dir('AcceptanceTest/ms_products') {
+                    sh './gradlew clean test -i'
+                }
+            }
+        }
+
         stage('Tear Down') {
             steps {
                 dir('ms_products/deployment') {
-                    sh 'docker compose down '
+                    sh 'docker compose down -v'
                 }
             }
         }
