@@ -23,13 +23,19 @@ before_install:
   - chmod +x AcceptanceTest/ms_products/gradlew
 
 install:
-  - ./ms_products/gradlew build
+  - cd ms_products
+  - ./gradlew build
+  - cd ..
 
 script:
-  - ./ms_products/gradlew jacocoTestReport
+  - cd ms_products
+  - ./gradlew jacocoTestReport
+  - cd ..
   - docker-compose -f ms_products/deployment/docker-compose.yml up -d
   - sleep 120 # Esperar a que los servicios se inicien 
-  - ./AcceptanceTest/ms_products/gradlew clean test -i
+  - cd AcceptanceTest/ms_products
+  - ./gradlew clean test -i
+  - cd ../..
 
 after_script:
   - docker-compose -f ms_products/deployment/docker-compose.yml down
@@ -46,6 +52,6 @@ addons:
 notifications:
   email:
     recipients:
-      - jorgeluisvelasquezv@gmail.com
+      - your-email@example.com
     on_success: always
     on_failure: always
