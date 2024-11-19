@@ -28,7 +28,7 @@ install:
 script:
   - ./ms_products/gradlew jacocoTestReport
   - docker-compose -f ms_products/deployment/docker-compose.yml up -d
-  - sleep 120 # Esperar a que los servicios se inicien
+  - sleep 120 # Esperar a que los servicios se inicien 
   - ./AcceptanceTest/ms_products/gradlew clean test -i
 
 after_script:
