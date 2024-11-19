@@ -31,13 +31,13 @@ script:
   - cd ms_products
   - ./gradlew jacocoTestReport
   - cd ..
-  - docker-compose -f ms_products/deployment/docker-compose.yml up -d
+  - docker-compose -f deployment/docker-compose.yml up -d
   - sleep 120 # Esperar a que los servicios se inicien 
   - cd AcceptanceTest/ms_products
   - ./gradlew clean test -i
 
 after_script:
-  - docker-compose -f ms_products/deployment/docker-compose.yml down -v
+  - docker-compose -f deployment/docker-compose.yml down -v
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -f ms_products/build/reports/jacoco/test/jacocoTestReport.xml
