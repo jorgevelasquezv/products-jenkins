@@ -1,0 +1,56 @@
+language: java
+jdk:
+  - openjdk17
+
+services:
+  - docker
+
+env:
+  global:
+    - DB_HOST=localhost
+    - DB_PORT=5432
+    - DB_NAME=products
+    - DB_USERNAME=user_products
+    - DB_PASSWORD=Cl4v3_S3cret4
+
+branches:
+  only:
+    - dev
+    - master
+
+before_install:
+  - chmod +x ms_products/gradlew
+  - chmod +x AcceptanceTest/ms_products/gradlew
+
+install:
+  - cd ms_products
+  - ./gradlew build
+  - cd ..
+
+script:
+  - cd ms_products
+  - ./gradlew jacocoTestReport
+  - cd ..
+  - docker-compose -f deployment/docker-compose.yml up -d
+  - sleep 120 # Esperar a que los servicios se inicien 
+  - cd AcceptanceTest/ms_products
+  - ./gradlew clean test -i
+
+after_script:
+  - docker-compose -f deployment/docker-compose.yml down -v
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f ms_products/build/reports/jacoco/test/jacocoTestReport.xml
+
+addons:
+  artifacts:
+    paths:
+      - ms_products/build/reports/jacoco/test/html
+      - AcceptanceTest/ms_products/target/cucumber-html-reports
+
+notifications:
+  email:
+    recipients:
+      - jorgeluisvelasquezv@gmail.com
+    on_success: always
+    on_failure: always
