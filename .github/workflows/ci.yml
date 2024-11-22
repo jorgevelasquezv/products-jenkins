@@ -46,6 +46,17 @@ jobs:
                 DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
               run: cd ms_products && ./gradlew jacocoTestReport
 
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                fail_ci_if_error: true # optional (default = false)
+                files: ./ms_products/build/reports/jacoco/test/jacocoTestReport.xml 
+                flags: unittests # optional
+                name: jacoco-report # optional
+                verbose: true # optional (default = false)
+              env:
+                CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
             - name: Upload coverage report
               uses: actions/upload-artifact@v4
               with:
